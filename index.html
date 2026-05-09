@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solpal — Your Solana dApp Companion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #9945FF;
+      --green: #14F195;
+      --bg: #08080f;
+      --surface: #111120;
+      --border: #1e1e30;
+      --text: #ffffff;
+      --muted: #666680;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8,8,15,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, var(--green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      padding: 10px 22px;
+      background: linear-gradient(135deg, var(--purple), var(--green));
+      border: none;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 40px 80px;
+      position: relative;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(153,69,255,0.12) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-glow-2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(20,241,149,0.08) 0%, transparent 70%);
+      top: 40%;
+      left: 60%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(153,69,255,0.1);
+      border: 1px solid rgba(153,69,255,0.3);
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--purple);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -3px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--purple) 0%, var(--green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.6;
+      margin-bottom: 48px;
+      font-weight: 300;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, var(--purple), var(--green));
+      border: none;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+
+    /* EXTENSION MOCKUP */
+    .mockup-wrap {
+      margin-top: 80px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .mockup-glow {
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(ellipse, rgba(153,69,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .extension-window {
+      width: 340px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+      position: relative;
+    }
+
+    .ext-header {
+      background: linear-gradient(135deg, var(--purple), var(--green));
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ext-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+
+    .ext-title { font-size: 15px; font-weight: 700; color: #fff; font-family: 'Syne', sans-serif; }
+    .ext-sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 1px; }
+    .ext-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-left: auto; box-shadow: 0 0 6px var(--green); flex-shrink: 0; }
+
+    .ext-body { padding: 16px; }
+
+    .ext-site {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 10px; margin-bottom: 12px;
+    }
+    .ext-site-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .ext-site-text { font-size: 12px; color: var(--muted); }
+    .ext-site-text span { color: var(--text); font-weight: 500; }
+
+    .ext-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+    }
+    .ext-card-label { font-size: 10px; font-weight: 600; color: var(--purple); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 7px; }
+    .ext-card-text { font-size: 13px; color: #ccccdd; line-height: 1.6; }
+
+    .ext-safe {
+      background: rgba(20,241,149,0.08); border: 1px solid rgba(20,241,149,0.25);
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 12px; color: var(--green); font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .ext-btn {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, var(--purple), var(--green));
+      border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 600; color: #fff;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+    }
+
+    .ext-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 10px; color: #333344;
+    }
+
+    /* HOW IT WORKS */
+    .section {
+      padding: 100px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px; font-weight: 600; color: var(--purple);
+      text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 700; letter-spacing: -1.5px;
+      line-height: 1.1; margin-bottom: 20px;
+    }
+
+    .section-sub {
+      font-size: 16px; color: var(--muted); max-width: 480px; line-height: 1.6; margin-bottom: 60px;
+    }
+
+    /* STEPS */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2px; }
+
+    .step {
+      background: var(--surface);
+      padding: 32px 28px;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .step:first-child { border-radius: 16px 0 0 16px; }
+    .step:last-child { border-radius: 0 16px 16px 0; }
+    .step:hover { background: #161626; }
+
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 48px; font-weight: 800;
+      background: linear-gradient(135deg, var(--purple), var(--green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1; margin-bottom: 16px;
+    }
+
+    .step-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; font-family: 'Syne', sans-serif; }
+    .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* FEATURES */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+
+    .feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature:hover { border-color: rgba(153,69,255,0.3); transform: translateY(-2px); }
+
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: rgba(153,69,255,0.1); border: 1px solid rgba(153,69,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 16px;
+    }
+
+    .feature-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; font-family: 'Syne', sans-serif; }
+    .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* DAPPS */
+    .dapps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+
+    .dapp {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+
+    .dapp-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--purple), var(--green));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+      font-family: 'Syne', sans-serif; flex-shrink: 0;
+    }
+
+    .dapp-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .dapp-tip { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* INSTALL */
+    .install-section {
+      padding: 100px 40px;
+      text-align: center;
+      position: relative;
+    }
+
+    .install-glow {
+      position: absolute;
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse, rgba(20,241,149,0.08) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .install-steps {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin: 60px auto;
+      max-width: 800px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .install-step {
+      flex: 1; padding: 28px 20px; text-align: center;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .install-step:last-child { border-right: none; }
+
+    .install-step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--green));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff;
+      margin: 0 auto 12px;
+    }
+
+    .install-step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .install-step-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* FOOTER */
+    footer {
+      padding: 40px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px; font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    .footer-copy { font-size: 12px; color: #333344; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge { animation: fadeUp 0.6s ease both; }
+    .hero h1 { animation: fadeUp 0.6s 0.1s ease both; }
+    .hero-sub { animation: fadeUp 0.6s 0.2s ease both; }
+    .hero-buttons { animation: fadeUp 0.6s 0.3s ease both; }
+    .mockup-wrap { animation: fadeUp 0.8s 0.4s ease both; }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .section { padding: 60px 20px; }
+      .steps { grid-template-columns: 1fr; }
+      .step:first-child { border-radius: 16px 16px 0 0; }
+      .step:last-child { border-radius: 0 0 16px 16px; }
+      .install-steps { flex-direction: column; }
+      .install-step { border-right: none; border-bottom: 1px solid var(--border); }
+      .install-step:last-child { border-bottom: none; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">solpal</div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/0xSARY/SolPal.AI" target="_blank">GitHub</a>
+    </div>
+    <a href="https://github.com/0xSARY/SolPal.AI" target="_blank" class="nav-cta">Get Solpal</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-glow-2"></div>
+
+    <div class="hero-badge">
+      <div class="badge-dot"></div>
+      Built for Dev3Pack Hackathon 2026
+    </div>
+
+    <h1>Your pal on<br/><span>Solana.</span></h1>
+
+    <p class="hero-sub">
+      Solpal sits in your browser and explains any Solana dApp in plain English — before you click anything. No crypto knowledge needed.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="#install" class="btn-primary">
+        ↓ Install Solpal
+      </a>
+      <a href="https://github.com/0xSARY/SolPal.AI" target="_blank" class="btn-secondary">
+        View on GitHub
+      </a>
+    </div>
+
+    <div class="mockup-wrap">
+      <div class="mockup-glow"></div>
+      <div class="extension-window">
+        <div class="ext-header">
+          <div class="ext-avatar">S</div>
+          <div>
+            <div class="ext-title">Solpal</div>
+            <div class="ext-sub">Your Solana dApp companion</div>
+          </div>
+          <div class="ext-dot"></div>
+        </div>
+        <div class="ext-body">
+          <div class="ext-site">
+            <div class="ext-site-dot"></div>
+            <div class="ext-site-text">Analyzing: <span>Jupiter</span></div>
+          </div>
+          <div class="ext-card">
+            <div class="ext-card-label">What's happening here</div>
+            <div class="ext-card-text">Before you swap — check your slippage. If it's above 1%, you could receive way less than expected. Always verify the token has a ✓ verified badge.</div>
+          </div>
+          <div class="ext-safe">✓ Jupiter is legit and widely trusted</div>
+          <button class="ext-btn">Analyze this page</button>
+        </div>
+        <div class="ext-footer">Powered by <span style="color:#9945FF">Solpal</span> <span style="color:#14F195">AI</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Three clicks to clarity.</h2>
+    <p class="section-sub">No setup. No crypto knowledge required. Just install and click.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Visit any Solana dApp</div>
+        <div class="step-desc">Open Jupiter, Magic Eden, Raydium, or any other Solana application in Chrome.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Click Solpal</div>
+        <div class="step-desc">Hit the Solpal icon in your toolbar. It reads the page instantly — no typing required.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Understand instantly</div>
+        <div class="step-desc">Get a plain English explanation and safety rating before you sign anything or click anything.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Stay safe</div>
+        <div class="step-desc">Unknown or suspicious sites get flagged red immediately. Never get scammed by a fake dApp again.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Built for real people,<br/>not just developers.</h2>
+    <p class="section-sub">Every feature designed for the person who's new to web3 and just wants to use it safely.</p>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">AI Page Analysis</div>
+        <div class="feature-desc">Solpal reads the entire page and surfaces the one thing you need to know before doing anything — not a Wikipedia definition, but actual useful context.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-title">Safety Ratings</div>
+        <div class="feature-desc">Green, yellow, or red. Every page gets a safety rating so you know instantly whether to proceed, be cautious, or leave immediately.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Instant Results</div>
+        <div class="feature-desc">No loading screens. No waiting. Solpal responds in under 2 seconds so it never interrupts your flow.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Scam Detection</div>
+        <div class="feature-desc">Unrecognized or suspicious sites get flagged immediately with a danger warning before you even think about connecting your wallet.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">👤</div>
+        <div class="feature-title">No Wallet Needed</div>
+        <div class="feature-desc">You don't need a Solana wallet to use Solpal itself. Just install the extension and go — it works before you have any crypto setup.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🗺️</div>
+        <div class="feature-title">Coming Soon: Highlight to Ask</div>
+        <div class="feature-desc">Draw a box around any confusing element on screen and ask Solpal exactly what it means. Launching in the next version.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUPPORTED DAPPS -->
+  <section class="section">
+    <div class="section-label">Supported dApps</div>
+    <h2 class="section-title">Sharp tips for the apps<br/>you actually use.</h2>
+    <p class="section-sub">Deep, specific knowledge for the most popular Solana dApps — not generic descriptions.</p>
+
+    <div class="dapps">
+      <div class="dapp">
+        <div class="dapp-icon">J</div>
+        <div>
+          <div class="dapp-name">Jupiter</div>
+          <div class="dapp-tip">Warns about slippage above 1% and fake token names before you swap.</div>
+        </div>
+      </div>
+      <div class="dapp">
+        <div class="dapp-icon">M</div>
+        <div>
+          <div class="dapp-name">Magic Eden</div>
+          <div class="dapp-tip">Flags unverified collections and hidden royalty fees before you buy.</div>
+        </div>
+      </div>
+      <div class="dapp">
+        <div class="dapp-icon">R</div>
+        <div>
+          <div class="dapp-name">Raydium</div>
+          <div class="dapp-tip">Explains impermanent loss in one sentence before you provide liquidity.</div>
+        </div>
+      </div>
+      <div class="dapp">
+        <div class="dapp-icon">O</div>
+        <div>
+          <div class="dapp-name">Orca</div>
+          <div class="dapp-tip">Breaks down Whirlpool price ranges before you enter a position.</div>
+        </div>
+      </div>
+      <div class="dapp">
+        <div class="dapp-icon">P</div>
+        <div>
+          <div class="dapp-name">Phantom</div>
+          <div class="dapp-tip">Reminds you about seed phrase safety every single time.</div>
+        </div>
+      </div>
+      <div class="dapp">
+        <div class="dapp-icon">+</div>
+        <div>
+          <div class="dapp-name">Any other site</div>
+          <div class="dapp-tip">Live AI analysis for any page not on the list — or a danger warning if it looks suspicious.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section class="install-section" id="install">
+    <div class="install-glow"></div>
+    <div class="section-label" style="text-align:center">Get started</div>
+    <h2 class="section-title">Install Solpal in 60 seconds.</h2>
+    <p class="section-sub" style="margin: 0 auto 0; text-align:center">No account. No signup. Just install and go.</p>
+
+    <div class="install-steps">
+      <div class="install-step">
+        <div class="install-step-num">1</div>
+        <div class="install-step-title">Clone the repo</div>
+        <div class="install-step-desc">Download from GitHub and add your free Google AI Studio key</div>
+      </div>
+      <div class="install-step">
+        <div class="install-step-num">2</div>
+        <div class="install-step-title">Open Chrome</div>
+        <div class="install-step-desc">Go to chrome://extensions and enable Developer Mode</div>
+      </div>
+      <div class="install-step">
+        <div class="install-step-num">3</div>
+        <div class="install-step-title">Load unpacked</div>
+        <div class="install-step-desc">Click Load unpacked and select the solpal folder</div>
+      </div>
+      <div class="install-step">
+        <div class="install-step-num">4</div>
+        <div class="install-step-title">Visit any dApp</div>
+        <div class="install-step-desc">Click the Solpal icon and hit Analyze. That's it.</div>
+      </div>
+    </div>
+
+    <a href="https://github.com/0xSARY/SolPal.AI" target="_blank" class="btn-primary" style="font-size:16px; padding: 18px 40px;">
+      Download from GitHub →
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">solpal</div>
+    <div class="footer-links">
+      <a href="https://github.com/0xSARY/SolPal.AI" target="_blank">GitHub</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+    </div>
+    <div class="footer-copy">Built for Dev3Pack Hackathon 2026</div>
+  </footer>
+
+</body>
+</html>
