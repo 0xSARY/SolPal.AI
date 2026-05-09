@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 340px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f13;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      flex-shrink: 0;
+      border: 1.5px solid rgba(255,255,255,0.3);
+    }
+
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .header-text p {
+      font-size: 11px;
+      color: rgba(255,255,255,0.75);
+      margin-top: 1px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #14F195;
+      margin-left: auto;
+      box-shadow: 0 0 6px #14F195;
+      flex-shrink: 0;
+    }
+
+    .body {
+      padding: 16px;
+      background: #0f0f13;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* IDLE */
+    .idle-state { text-align: center; }
+
+    .idle-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .idle-state h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .idle-state p {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .analyze-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #9945FF, #14F195);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.2px;
+      transition: opacity 0.2s;
+    }
+
+    .analyze-btn:hover { opacity: 0.9; }
+
+    /* LOADING */
+    .loading-state {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .pulse-ring {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: #9945FF;
+      border-right-color: #14F195;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-state p {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .loading-dots::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: ''; }
+      40% { content: '.'; }
+      60% { content: '..'; }
+      80%, 100% { content: '...'; }
+    }
+
+    /* RESULT */
+    .result-state { display: none; }
+
+    .site-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+    }
+
+    .site-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #14F195;
+      flex-shrink: 0;
+    }
+
+    .site-name {
+      font-size: 11px;
+      color: #888;
+    }
+
+    .site-name span {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .explanation-box {
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+
+    .explanation-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #9945FF;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 7px;
+    }
+
+    .explanation-text {
+      font-size: 13px;
+      color: #ddd;
+      line-height: 1.6;
+    }
+
+    .safety-safe {
+      background: rgba(20, 241, 149, 0.08);
+      border: 1px solid rgba(20, 241, 149, 0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #14F195;
+      font-weight: 500;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .safety-warn {
+      background: rgba(255, 180, 0, 0.08);
+      border: 1px solid rgba(255, 180, 0, 0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #FFB400;
+      font-weight: 500;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .safety-danger {
+      background: rgba(255, 80, 80, 0.08);
+      border: 1px solid rgba(255, 80, 80, 0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #FF5050;
+      font-weight: 500;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .again-btn {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      color: #9945FF;
+      border: 1px solid #9945FF;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .again-btn:hover { background: rgba(153, 69, 255, 0.1); }
+
+    /* ERROR */
+    .error-state {
+      display: none;
+      text-align: center;
+    }
+
+    .error-icon { font-size: 28px; margin-bottom: 8px; }
+
+    .error-state p {
+      font-size: 12px;
+      color: #FF5050;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .footer {
+      padding: 10px 16px;
+      border-top: 1px solid #1a1a24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .footer p {
+      font-size: 10px;
+      color: #444;
+    }
+
+    .footer span {
+      font-size: 10px;
+      background: linear-gradient(135deg, #9945FF, #14F195);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="avatar">S</div>
+    <div class="header-text">
+      <h1>Solpal</h1>
+      <p>Your Solana dApp companion</p>
+    </div>
+    <div class="status-dot"></div>
+  </div>
+
+  <div class="body">
+
+    <div class="idle-state" id="idle">
+      <div class="idle-icon">👋</div>
+      <h2>Hey, I'm Solpal!</h2>
+      <p>I'll explain what's on this page and keep you safe before you click anything.</p>
+      <button class="analyze-btn" id="analyzeBtn">Analyze this page</button>
+    </div>
+
+    <div class="loading-state" id="loading">
+      <div class="pulse-ring"></div>
+      <p>Reading the page<span class="loading-dots"></span></p>
+    </div>
+
+    <div class="result-state" id="result">
+      <div class="site-badge">
+        <div class="site-dot"></div>
+        <div class="site-name">Analyzing: <span id="siteName"></span></div>
+      </div>
+      <div class="explanation-box">
+        <div class="explanation-label">What's happening here</div>
+        <div class="explanation-text" id="explanation"></div>
+      </div>
+      <div id="safetyBadge"></div>
+      <button class="again-btn" id="againBtn">← Analyze another page</button>
+    </div>
+
+    <div class="error-state" id="error">
+      <div class="error-icon">⚠️</div>
+      <p>Couldn't analyze this page. Try refreshing and clicking Solpal again.</p>
+      <button class="again-btn" id="errorBtn">Try again</button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>Powered by</p>
+    <span>Solpal AI</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
